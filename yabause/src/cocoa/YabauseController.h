@@ -52,6 +52,7 @@
 - (IBAction)showPreferences:(id)sender;
 - (IBAction)runBIOS:(id)sender;
 - (IBAction)runCD:(id)sender;
+- (IBAction)runISO:(id)sender;
 - (IBAction)toggleFullscreen:(id)sender;
 - (IBAction)toggle:(id)sender;
 - (IBAction)toggleFrameskip:(id)sender;

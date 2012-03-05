@@ -76,6 +76,13 @@
     else {
         [_prefs setObject:@"" forKey:@"Cartridge Path"];
     }
+    
+    if([_prefs objectForKey:@"CD Path"]) {
+        [cdPath setStringValue:[_prefs stringForKey:@"CD Path"]];
+    }
+    else {
+        [_prefs setObject:@"" forKey:@"CD Path"];
+    }
 
     if([_prefs objectForKey:@"Cartridge Type"]) {
         _cartType = [_prefs integerForKey:@"Cartridge Type"];
@@ -261,6 +268,22 @@
     }
 }
 
+- (IBAction)cdBrowse:(id)sender
+{
+    NSOpenPanel *p = [NSOpenPanel openPanel];
+    
+    [p setTitle:@"Select the CUE/ISO File"];
+    
+    if([p runModal] == NSFileHandlingPanelOKButton) {
+        [cdPath setStringValue:[[[p URLs] objectAtIndex:0] path]];
+        
+        /* Update the preferences file. */
+        [_prefs setObject:[cdPath stringValue] forKey:@"CD Path"];
+        [_prefs synchronize];
+    }
+}
+
+
 - (IBAction)biosToggle:(id)sender
 {
     /* Update the preferences file. */
@@ -444,6 +467,11 @@
 - (NSString *)cartPath
 {
     return [cartPath stringValue];
+}
+
+- (NSString *)cdPath
+{
+    return [cdPath stringValue];
 }
 
 @end /* @implementation YabausePrefsController */

@@ -56,6 +56,7 @@ PerInterface_struct *PERCoreList[] = {
 
 CDInterface *CDCoreList[] = {
     &DummyCD,
+    &ISOCD,
     &ArchCD,
     NULL
 };

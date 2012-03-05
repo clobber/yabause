@@ -25,6 +25,7 @@
 @interface YabausePrefsController : NSObject {
     IBOutlet NSTextField *biosPath;
     IBOutlet NSTextField *bramPath;
+    IBOutlet NSTextField *cdPath;
     IBOutlet NSButton *cartBrowse;
     IBOutlet NSTextField *cartPath;
     IBOutlet NSPopUpButton *cartType;
@@ -59,6 +60,7 @@
 - (IBAction)mpegBrowse:(id)sender;
 - (IBAction)bramBrowse:(id)sender;
 - (IBAction)cartBrowse:(id)sender;
+- (IBAction)cdBrowse:(id)sender;
 - (IBAction)biosToggle:(id)sender;
 - (IBAction)buttonSelect:(id)sender;
 
@@ -74,6 +76,7 @@
 - (NSString *)mpegPath;
 - (NSString *)bramPath;
 - (NSString *)cartPath;
+- (NSString *)cdPath;
 
 @end
 

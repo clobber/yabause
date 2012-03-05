@@ -123,6 +123,25 @@ static void FlipToggle(NSMenuItem *item) {
     [self startEmulationWithCDCore:CDCORE_ARCH];
 }
 
+- (IBAction)runISO:(id)sender
+{
+    //[self startEmulationWithCDCore:CDCORE_ISO];
+    //NSOpenPanel *p = [NSOpenPanel openPanel];
+    
+    //[p setTitle:@"Select a CUE/ISO"];
+    
+    //if([p runModal] == NSFileHandlingPanelOKButton) {
+    //[cdPath setStringValue:[[[p URLs] objectAtIndex:0] path]];
+    
+    /* Update the preferences file. */
+    //[_prefs setObject:[cdPath stringValue] forKey:@"CD Path"];
+    //[_prefs synchronize];
+    
+    //}
+    
+    [self startEmulationWithCDCore:CDCORE_ISO];
+}
+
 - (IBAction)toggleFullscreen:(id)sender
 {
     /* The view handles any heavy lifting here... */
@@ -233,6 +252,7 @@ static void FlipToggle(NSMenuItem *item) {
         NSString *mpeg = [prefs mpegPath];
         NSString *bram = [prefs bramPath];
         NSString *cart = [prefs cartPath];
+        const char *cdrompath = [[prefs cdPath] UTF8String];
 
         yinit.percoretype = PERCORE_COCOA;
         yinit.sh2coretype = SH2CORE_DEFAULT;
@@ -279,6 +299,10 @@ static void FlipToggle(NSMenuItem *item) {
                             "(and have BIOS emulation disabled) in order to "
                             "run the BIOS.", @"OK", NULL, NULL);
             return;
+        }
+        
+        if(cdcore == CDCORE_ISO) {
+            yinit.cdpath = cdrompath;
         }
 
         [[view openGLContext] makeCurrentContext];
