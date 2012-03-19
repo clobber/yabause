@@ -34,6 +34,7 @@
     IBOutlet NSPopUpButton *region;
     IBOutlet NSPopUpButton *soundCore;
     IBOutlet NSPopUpButton *videoCore;
+    IBOutlet NSPopUpButton *cpuCore;
     IBOutlet NSPanel *prefsPane;
     IBOutlet NSPanel *buttonAssignment;
     IBOutlet NSTextField *buttonBox;
@@ -42,6 +43,7 @@
     int _region;
     int _soundCore;
     int _videoCore;
+    int _cpuCore;
 
     NSUserDefaults *_prefs;
 }
@@ -56,6 +58,7 @@
 - (IBAction)regionSelected:(id)sender;
 - (IBAction)soundCoreSelected:(id)sender;
 - (IBAction)videoCoreSelected:(id)sender;
+- (IBAction)cpuCoreSelected:(id)sender;
 - (IBAction)biosBrowse:(id)sender;
 - (IBAction)mpegBrowse:(id)sender;
 - (IBAction)bramBrowse:(id)sender;
@@ -71,6 +74,7 @@
 - (int)region;
 - (int)soundCore;
 - (int)videoCore;
+- (int)cpuCore;
 - (NSString *)biosPath;
 - (BOOL)emulateBios;
 - (NSString *)mpegPath;

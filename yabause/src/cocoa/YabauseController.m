@@ -255,7 +255,9 @@ static void FlipToggle(NSMenuItem *item) {
         const char *cdrompath = [[prefs cdPath] UTF8String];
 
         yinit.percoretype = PERCORE_COCOA;
-        yinit.sh2coretype = SH2CORE_DEFAULT;
+        //yinit.sh2coretype = SH2CORE_DEFAULT;
+        //yinit.sh2coretype = SH2CORE_DEBUGINTERPRETER;
+        yinit.sh2coretype = [prefs cpuCore];
         yinit.vidcoretype = [prefs videoCore];
         yinit.sndcoretype = [prefs soundCore];
         yinit.m68kcoretype = M68KCORE_C68K;

@@ -28,6 +28,8 @@
 #include "smpc.h"
 #include "sndmac.h"
 #include "PerCocoa.h"
+#include "sh2core.h"
+#include "sh2int.h"
 
 @implementation YabausePrefsController
 
@@ -36,7 +38,9 @@
     _cartType = CART_NONE;
     _region = REGION_AUTODETECT;
     _soundCore = SNDCORE_MAC;
-    _videoCore = VIDCORE_SOFT;
+    //_videoCore = VIDCORE_SOFT;
+    _videoCore = VIDCORE_OGL;
+    _cpuCore = SH2CORE_DEFAULT;
 
     _prefs = [[NSUserDefaults standardUserDefaults] retain];
 
@@ -123,6 +127,14 @@
     else {
         [_prefs setInteger:VIDCORE_OGL forKey:@"Video Core"];
     }
+    
+    if([_prefs objectForKey:@"CPU Core"]) {
+        _cpuCore = [_prefs integerForKey:@"CPU Core"];
+        [cpuCore selectItemWithTag:_cpuCore];
+    }
+    else {
+        [_prefs setInteger:SH2CORE_DEFAULT forKey:@"CPU Core"];
+    }
 
     [_prefs synchronize];
 }
@@ -205,6 +217,15 @@
 
     /* Update the preferences file. */
     [_prefs setInteger:_videoCore forKey:@"Video Core"];
+    [_prefs synchronize];
+}
+
+- (IBAction)cpuCoreSelected:(id)sender
+{
+    _cpuCore = [[sender selectedItem] tag];
+    
+    /* Update the preferences file. */
+    [_prefs setInteger:_cpuCore forKey:@"CPU Core"];
     [_prefs synchronize];
 }
 
@@ -442,6 +463,11 @@
 - (int)videoCore
 {
     return _videoCore;
+}
+
+- (int)cpuCore
+{
+    return _cpuCore;
 }
 
 - (NSString *)biosPath
