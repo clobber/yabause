@@ -3178,6 +3178,12 @@ static void Vdp2DrawNBG0(void)
       info.rotatenum = 1;
       info.PlaneAddr = (void FASTCALL (*)(void *, int))&Vdp2ParameterBPlaneAddr;
       parameter.coefenab = Vdp2Regs->KTCTL & 0x100;
+
+      info.LineColorBase = 0x00;
+      if (paraB.coefenab)
+         info.GetRParam = (Vdp2GetRParam_func) vdp2RGetParamMode01WithK;
+      else
+         info.GetRParam = (Vdp2GetRParam_func) vdp2RGetParamMode01NoK;
    }
    else if (Vdp2Regs->BGON & 0x1)
    {
