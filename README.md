@@ -1,1 +1,1 @@
-[Prefs](http://i.imgur.com/TDF2c.png)
+![Prefs](http://i.imgur.com/TDF2c.png)
