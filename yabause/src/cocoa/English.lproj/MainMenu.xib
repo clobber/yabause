@@ -495,11 +495,13 @@
 							<int key="NSvFlags">274</int>
 							<string key="NSFrameSize">{320, 224}</string>
 							<reference key="NSSuperview" ref="6071680"/>
+							<reference key="NSNextKeyView"/>
 							<string key="NSClassName">YabauseGLView</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{320, 224}</string>
 					<reference key="NSSuperview"/>
+					<reference key="NSNextKeyView" ref="616240904"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1920, 1058}}</string>
 				<string key="NSMinSize">{320, 246}</string>
@@ -519,7 +521,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="807013193">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -528,8 +530,6 @@
 							<int key="NSvFlags">12</int>
 							<string key="NSFrame">{{13, 10}, {458, 398}}</string>
 							<reference key="NSSuperview" ref="807013193"/>
-							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="286928283"/>
 							<object class="NSMutableArray" key="NSTabViewItems">
 								<bool key="EncodedWithXMLCoder">YES</bool>
 								<object class="NSTabViewItem" id="8516519">
@@ -1124,7 +1124,6 @@
 																<int key="NSvFlags">268</int>
 																<string key="NSFrame">{{15, 34}, {262, 26}}</string>
 																<reference key="NSSuperview" ref="546169056"/>
-																<reference key="NSWindow"/>
 																<reference key="NSNextKeyView" ref="474940432"/>
 																<bool key="NSEnabled">YES</bool>
 																<object class="NSPopUpButtonCell" key="NSCell" id="404850300">
@@ -1204,7 +1203,6 @@
 																<int key="NSvFlags">268</int>
 																<string key="NSFrame">{{16, 12}, {136, 18}}</string>
 																<reference key="NSSuperview" ref="546169056"/>
-																<reference key="NSWindow"/>
 																<reference key="NSNextKeyView" ref="504822661"/>
 																<string key="NSReuseIdentifierKey">_NS:9</string>
 																<bool key="NSEnabled">YES</bool>
@@ -1228,13 +1226,11 @@
 														</object>
 														<string key="NSFrame">{{1, 1}, {424, 68}}</string>
 														<reference key="NSSuperview" ref="488979442"/>
-														<reference key="NSWindow"/>
 														<reference key="NSNextKeyView" ref="4453628"/>
 													</object>
 												</object>
 												<string key="NSFrame">{{6, 268}, {426, 84}}</string>
 												<reference key="NSSuperview" ref="286928283"/>
-												<reference key="NSWindow"/>
 												<reference key="NSNextKeyView" ref="546169056"/>
 												<string key="NSOffsets">{0, 0}</string>
 												<object class="NSTextFieldCell" key="NSTitleCell">
@@ -1269,8 +1265,6 @@
 																<int key="NSvFlags">268</int>
 																<string key="NSFrame">{{15, 10}, {262, 26}}</string>
 																<reference key="NSSuperview" ref="863403035"/>
-																<reference key="NSWindow"/>
-																<reference key="NSNextKeyView"/>
 																<bool key="NSEnabled">YES</bool>
 																<object class="NSPopUpButtonCell" key="NSCell" id="26675444">
 																	<int key="NSCellFlags">-2076049856</int>
@@ -1325,13 +1319,11 @@
 														</object>
 														<string key="NSFrame">{{1, 1}, {424, 44}}</string>
 														<reference key="NSSuperview" ref="504822661"/>
-														<reference key="NSWindow"/>
 														<reference key="NSNextKeyView" ref="224146562"/>
 													</object>
 												</object>
 												<string key="NSFrame">{{6, 205}, {426, 60}}</string>
 												<reference key="NSSuperview" ref="286928283"/>
-												<reference key="NSWindow"/>
 												<reference key="NSNextKeyView" ref="863403035"/>
 												<string key="NSOffsets">{0, 0}</string>
 												<object class="NSTextFieldCell" key="NSTitleCell">
@@ -1354,7 +1346,6 @@
 										</object>
 										<string key="NSFrame">{{10, 33}, {438, 352}}</string>
 										<reference key="NSSuperview" ref="237016232"/>
-										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="488979442"/>
 									</object>
 									<string key="NSLabel">Video/Sound</string>
@@ -1688,7 +1679,6 @@
 												<int key="NSvFlags">12</int>
 												<string key="NSFrame">{{10, 21}, {418, 324}}</string>
 												<reference key="NSSuperview" ref="1050582408"/>
-												<reference key="NSNextKeyView" ref="693037235"/>
 												<object class="NSMutableArray" key="NSTabViewItems">
 													<bool key="EncodedWithXMLCoder">YES</bool>
 													<object class="NSTabViewItem" id="207743490">
@@ -2330,7 +2320,6 @@
 																	<int key="NSvFlags">268</int>
 																	<string key="NSFrame">{{248, 111}, {17, 18}}</string>
 																	<reference key="NSSuperview" ref="693037235"/>
-																	<reference key="NSNextKeyView"/>
 																	<int key="NSTag">20</int>
 																	<bool key="NSEnabled">YES</bool>
 																	<object class="NSButtonCell" key="NSCell" id="530324405">
@@ -2388,8 +2377,6 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{484, 414}</string>
-					<reference key="NSSuperview"/>
-					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="237016232"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1920, 1058}}</string>
@@ -5352,448 +5339,7 @@
 			<nil key="sourceID"/>
 			<int key="maxID">1307</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes">
-			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
-				<bool key="EncodedWithXMLCoder">YES</bool>
-				<object class="IBPartialClassDescription">
-					<string key="className">YabauseButtonFormatter</string>
-					<string key="superclassName">NSFormatter</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/YabauseButtonFormatter.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">YabauseController</string>
-					<string key="superclassName">NSObject</string>
-					<object class="NSMutableDictionary" key="actions">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>pause:</string>
-							<string>reset:</string>
-							<string>runBIOS:</string>
-							<string>runCD:</string>
-							<string>runISO:</string>
-							<string>showPreferences:</string>
-							<string>toggle:</string>
-							<string>toggleFrameskip:</string>
-							<string>toggleFullscreen:</string>
-						</object>
-						<object class="NSArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="actionInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>pause:</string>
-							<string>reset:</string>
-							<string>runBIOS:</string>
-							<string>runCD:</string>
-							<string>runISO:</string>
-							<string>showPreferences:</string>
-							<string>toggle:</string>
-							<string>toggleFrameskip:</string>
-							<string>toggleFullscreen:</string>
-						</object>
-						<object class="NSArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBActionInfo">
-								<string key="name">pause:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">reset:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">runBIOS:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">runCD:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">runISO:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">showPreferences:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">toggle:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">toggleFrameskip:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">toggleFullscreen:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>frameskip</string>
-							<string>logView</string>
-							<string>logWindow</string>
-							<string>prefs</string>
-							<string>prefsPane</string>
-							<string>view</string>
-						</object>
-						<object class="NSArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSMenuItem</string>
-							<string>NSTextView</string>
-							<string>NSWindow</string>
-							<string>YabausePrefsController</string>
-							<string>NSPanel</string>
-							<string>YabauseGLView</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>frameskip</string>
-							<string>logView</string>
-							<string>logWindow</string>
-							<string>prefs</string>
-							<string>prefsPane</string>
-							<string>view</string>
-						</object>
-						<object class="NSArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">frameskip</string>
-								<string key="candidateClassName">NSMenuItem</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">logView</string>
-								<string key="candidateClassName">NSTextView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">logWindow</string>
-								<string key="candidateClassName">NSWindow</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">prefs</string>
-								<string key="candidateClassName">YabausePrefsController</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">prefsPane</string>
-								<string key="candidateClassName">NSPanel</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">view</string>
-								<string key="candidateClassName">YabauseGLView</string>
-							</object>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/YabauseController.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">YabauseGLView</string>
-					<string key="superclassName">NSOpenGLView</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">window</string>
-						<string key="NS.object.0">NSWindow</string>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<string key="NS.key.0">window</string>
-						<object class="IBToOneOutletInfo" key="NS.object.0">
-							<string key="name">window</string>
-							<string key="candidateClassName">NSWindow</string>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/YabauseGLView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">YabausePrefsController</string>
-					<string key="superclassName">NSObject</string>
-					<object class="NSMutableDictionary" key="actions">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>aspectRatioToggle:</string>
-							<string>biosBrowse:</string>
-							<string>biosToggle:</string>
-							<string>bramBrowse:</string>
-							<string>buttonSelect:</string>
-							<string>buttonSetCancel:</string>
-							<string>buttonSetOk:</string>
-							<string>cartBrowse:</string>
-							<string>cartSelected:</string>
-							<string>cdBrowse:</string>
-							<string>cpuCoreSelected:</string>
-							<string>mpegBrowse:</string>
-							<string>regionSelected:</string>
-							<string>soundCoreSelected:</string>
-							<string>videoCoreSelected:</string>
-						</object>
-						<object class="NSArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="actionInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>aspectRatioToggle:</string>
-							<string>biosBrowse:</string>
-							<string>biosToggle:</string>
-							<string>bramBrowse:</string>
-							<string>buttonSelect:</string>
-							<string>buttonSetCancel:</string>
-							<string>buttonSetOk:</string>
-							<string>cartBrowse:</string>
-							<string>cartSelected:</string>
-							<string>cdBrowse:</string>
-							<string>cpuCoreSelected:</string>
-							<string>mpegBrowse:</string>
-							<string>regionSelected:</string>
-							<string>soundCoreSelected:</string>
-							<string>videoCoreSelected:</string>
-						</object>
-						<object class="NSArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBActionInfo">
-								<string key="name">aspectRatioToggle:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">biosBrowse:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">biosToggle:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">bramBrowse:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">buttonSelect:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">buttonSetCancel:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">buttonSetOk:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">cartBrowse:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">cartSelected:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">cdBrowse:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">cpuCoreSelected:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">mpegBrowse:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">regionSelected:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">soundCoreSelected:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-							<object class="IBActionInfo">
-								<string key="name">videoCoreSelected:</string>
-								<string key="candidateClassName">id</string>
-							</object>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>biosPath</string>
-							<string>bramPath</string>
-							<string>buttonAssignment</string>
-							<string>buttonBox</string>
-							<string>cartBrowse</string>
-							<string>cartPath</string>
-							<string>cartType</string>
-							<string>cdPath</string>
-							<string>cpuCore</string>
-							<string>emulateBios</string>
-							<string>keepAspectRatio</string>
-							<string>mpegPath</string>
-							<string>prefsPane</string>
-							<string>region</string>
-							<string>soundCore</string>
-							<string>videoCore</string>
-						</object>
-						<object class="NSArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPanel</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSPanel</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>biosPath</string>
-							<string>bramPath</string>
-							<string>buttonAssignment</string>
-							<string>buttonBox</string>
-							<string>cartBrowse</string>
-							<string>cartPath</string>
-							<string>cartType</string>
-							<string>cdPath</string>
-							<string>cpuCore</string>
-							<string>emulateBios</string>
-							<string>keepAspectRatio</string>
-							<string>mpegPath</string>
-							<string>prefsPane</string>
-							<string>region</string>
-							<string>soundCore</string>
-							<string>videoCore</string>
-						</object>
-						<object class="NSArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">biosPath</string>
-								<string key="candidateClassName">NSTextField</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">bramPath</string>
-								<string key="candidateClassName">NSTextField</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">buttonAssignment</string>
-								<string key="candidateClassName">NSPanel</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">buttonBox</string>
-								<string key="candidateClassName">NSTextField</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">cartBrowse</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">cartPath</string>
-								<string key="candidateClassName">NSTextField</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">cartType</string>
-								<string key="candidateClassName">NSPopUpButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">cdPath</string>
-								<string key="candidateClassName">NSTextField</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">cpuCore</string>
-								<string key="candidateClassName">NSPopUpButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">emulateBios</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">keepAspectRatio</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">mpegPath</string>
-								<string key="candidateClassName">NSTextField</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">prefsPane</string>
-								<string key="candidateClassName">NSPanel</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">region</string>
-								<string key="candidateClassName">NSPopUpButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">soundCore</string>
-								<string key="candidateClassName">NSPopUpButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">videoCore</string>
-								<string key="candidateClassName">NSPopUpButton</string>
-							</object>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/YabausePrefsController.h</string>
-					</object>
-				</object>
-			</object>
-		</object>
+		<object class="IBClassDescriber" key="IBDocument.Classes"/>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">
