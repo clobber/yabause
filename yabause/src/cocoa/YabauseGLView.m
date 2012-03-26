@@ -61,7 +61,7 @@
     _isFullscreen = NO;
 
     [fmt release];
-
+    
     return self;
 }
 
@@ -143,9 +143,13 @@
 
 - (void)reshape
 {
+    // Lock the context during resize
+    CGLContextObj cxt = CGLGetCurrentContext();
+    CGLLockContext(cxt);
     if(VIDCore)
         VIDCore->Resize([self width], [self height], 0);
-
+   
+    CGLUnlockContext(cxt);
     [super reshape];
 }
 
