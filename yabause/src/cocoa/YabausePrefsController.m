@@ -312,6 +312,13 @@
     [_prefs synchronize];
 }
 
+- (IBAction)aspectRatioToggle:(id)sender
+{
+    /* Update the preferences file. */
+    [_prefs setBool:([sender state] == NSOnState) forKey:@"Keep Aspect Ratio"];
+    [_prefs synchronize];
+}
+
 - (IBAction)buttonSelect:(id)sender
 {
     NSInteger rv;

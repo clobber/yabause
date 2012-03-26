@@ -30,6 +30,7 @@
     IBOutlet NSTextField *cartPath;
     IBOutlet NSPopUpButton *cartType;
     IBOutlet NSButton *emulateBios;
+    IBOutlet NSButton *keepAspectRatio;
     IBOutlet NSTextField *mpegPath;
     IBOutlet NSPopUpButton *region;
     IBOutlet NSPopUpButton *soundCore;
@@ -66,7 +67,7 @@
 - (IBAction)cdBrowse:(id)sender;
 - (IBAction)biosToggle:(id)sender;
 - (IBAction)buttonSelect:(id)sender;
-
+- (IBAction)aspectRatioToggle:(id)sender;
 - (IBAction)buttonSetOk:(id)sender;
 - (IBAction)buttonSetCancel:(id)sender;
 
@@ -77,6 +78,7 @@
 - (int)cpuCore;
 - (NSString *)biosPath;
 - (BOOL)emulateBios;
+- (BOOL)keepAspectRatio;
 - (NSString *)mpegPath;
 - (NSString *)bramPath;
 - (NSString *)cartPath;
