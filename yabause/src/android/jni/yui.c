@@ -21,6 +21,7 @@
 #include <android/bitmap.h>
 #include <android/log.h>
 
+#include "../../config.h"
 #include "yabause.h"
 #include "scsp.h"
 #include "vidsoft.h"
@@ -30,6 +31,7 @@
 #include "sh2int.h"
 #include "cdbase.h"
 #include "cs2.h"
+#include "debug.h"
 
 static JavaVM * yvm;
 static jobject yabause;
@@ -55,6 +57,9 @@ NULL
 SH2Interface_struct *SH2CoreList[] = {
 &SH2Interpreter,
 &SH2DebugInterpreter,
+#ifdef SH2_DYNAREC
+&SH2Dynarec,
+#endif
 NULL
 };
 
@@ -90,9 +95,7 @@ void YuiErrorMsg(const char *string)
         return;
 
     yclass = (*env)->GetObjectClass(env, yabause);
-    __android_log_print(ANDROID_LOG_INFO, "yabause", "yclass = %p", yclass);
     errorMsg = (*env)->GetMethodID(env, yclass, "errorMsg", "(Ljava/lang/String;)V");
-    __android_log_print(ANDROID_LOG_INFO, "yabause", "errorMsg = %p", errorMsg);
     message = (*env)->NewStringUTF(env, string);
     (*env)->CallVoidMethod(env, yabause, errorMsg, message);
 }
@@ -133,13 +136,15 @@ Java_org_yabause_android_YabauseRunnable_init( JNIEnv* env, jobject obj, jobject
     void * padbits;
 
     yabause = (*env)->NewGlobalRef(env, yab);
-    __android_log_print(ANDROID_LOG_INFO, "yabause", "yabause = %p", yabause);
     ybitmap = (*env)->NewGlobalRef(env, bitmap);
-    __android_log_print(ANDROID_LOG_INFO, "yabause", "ybitmap = %p", ybitmap);
 
     yinit.m68kcoretype = M68KCORE_C68K;
     yinit.percoretype = PERCORE_DUMMY;
+#ifdef SH2_DYNAREC
+    yinit.sh2coretype = 2;
+#else
     yinit.sh2coretype = SH2CORE_DEFAULT;
+#endif
     yinit.vidcoretype = VIDCORE_SOFT;
     yinit.sndcoretype = SNDCORE_DUMMY;
     yinit.cdcoretype = CDCORE_DEFAULT;
@@ -165,6 +170,12 @@ Java_org_yabause_android_YabauseRunnable_init( JNIEnv* env, jobject obj, jobject
 }
 
 void
+Java_org_yabause_android_YabauseRunnable_deinit( JNIEnv* env )
+{
+    YabauseDeInit();
+}
+
+void
 Java_org_yabause_android_YabauseRunnable_exec( JNIEnv* env )
 {
     YabauseExec();
@@ -173,15 +184,18 @@ Java_org_yabause_android_YabauseRunnable_exec( JNIEnv* env )
 void
 Java_org_yabause_android_YabauseRunnable_press( JNIEnv* env, jobject obj, jint key )
 {
-    __android_log_print(ANDROID_LOG_INFO, "yabause", "press = %d", key);
     PerKeyDown(key);
 }
 
 void
 Java_org_yabause_android_YabauseRunnable_release( JNIEnv* env, jobject obj, jint key )
 {
-    __android_log_print(ANDROID_LOG_INFO, "yabause", "release = %d", key);
     PerKeyUp(key);
+}
+
+void log_callback(char * message)
+{
+    __android_log_print(ANDROID_LOG_INFO, "yabause", "%s", message);
 }
 
 jint JNI_OnLoad(JavaVM * vm, void * reserved)
@@ -191,6 +205,9 @@ jint JNI_OnLoad(JavaVM * vm, void * reserved)
         return -1;
 
     yvm = vm;
+
+    LogStart();
+    LogChangeOutput(DEBUG_CALLBACK, (char *) log_callback);
 
     return JNI_VERSION_1_6;
 }

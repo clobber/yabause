@@ -59,6 +59,7 @@ class InputHandler extends Handler {
 class YabauseRunnable implements Runnable
 {
     public static native int init(Yabause yabause, Bitmap bitmap);
+    public static native void deinit();
     public static native void exec();
     public static native void press(int key);
     public static native void release(int key);
@@ -84,6 +85,13 @@ class YabauseRunnable implements Runnable
         Log.v("Yabause", "resuming emulation...");
         paused = false;
         handler.post(this);
+    }
+
+    public void destroy()
+    {
+        Log.v("Yabause", "destroying yabause...");
+        inited = false;
+        deinit();
     }
 
     public void run()
@@ -157,6 +165,7 @@ public class Yabause extends Activity implements OnTouchListener
     {
         super.onDestroy();
         Log.v(TAG, "this is the end...");
+        yabauseThread.destroy();
     }
 
     @Override
@@ -216,7 +225,6 @@ public class Yabause extends Activity implements OnTouchListener
 
     public boolean onTouch(View v, MotionEvent event) {
         int action = event.getActionMasked();
-        Log.v(TAG, "" + event.getX() + " " + event.getY());
         float x = event.getX();
         float y = event.getY();
         int keyx = (int) ((x - 10) / 30);

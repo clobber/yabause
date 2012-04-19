@@ -281,7 +281,14 @@ static INLINE void Vdp2PatternAddr(vdp2draw_struct *info)
          info->addr += 4;
          info->charaddr = tmp2 & 0x7FFF;
          info->flipfunction = (tmp1 & 0xC000) >> 14;
-         info->paladdr = (tmp1 & 0x7F) << 4;
+         switch(info->colornumber) {
+            case 0:
+               info->paladdr = (tmp1 & 0x7F) << 4;
+               break;
+            default:
+               info->paladdr = ((tmp1 & 0x70) << 4);
+               break;
+         }
          info->specialfunction = (tmp1 & 0x2000) >> 13;
          info->specialcolorfunction = (tmp1 & 0x1000) >> 12;
          break;
@@ -2772,11 +2779,12 @@ void VIDSoftVdp2DrawEnd(void)
                else
                {
                   // Color bank
-		  int priority;
-		  int shadow = 0;
-		  int colorcalc;
+                  int priority = 0;
+                  int shadow = 0;
+                  int colorcalc = 0;
                   u8 alpha = 0xFF;
-		  priority = 0;  // Avoid compiler warning
+                  u32 dot;
+
                   Vdp1ProcessSpritePixel(vdp1spritetype, &pixel, &shadow, &priority, &colorcalc);
                   if (shadow)
                   {
@@ -2788,6 +2796,8 @@ void VIDSoftVdp2DrawEnd(void)
                      }
                      continue;
                   }
+
+                  dot = Vdp2ColorRamGetColor(vdp1coloroffset + pixel);
 
                   if (Vdp2Regs->CCCTL & 0x40)
                   {
@@ -2808,10 +2818,15 @@ void VIDSoftVdp2DrawEnd(void)
                               alpha = colorcalctable[colorcalc];
                            }
                            break;
+                        case 3:
+                           if (dot & 0x80000000) {
+                              alpha = colorcalctable[colorcalc];
+                           }
+                           break;
                      }
                   }
 
-                  TitanPutPixel(prioritytable[priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(alpha, Vdp2ColorRamGetColor(vdp1coloroffset + pixel))), 0);
+                  TitanPutPixel(prioritytable[priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(alpha, dot)), 0);
                }
             }
             else
@@ -2871,6 +2886,12 @@ void VIDSoftVdp2DrawEnd(void)
 
 #endif
    YuiSwapBuffers();
+
+   if ((Vdp1Regs->FBCR & 2) && (Vdp1Regs->TVMR & 8))
+   {
+      Vdp1External.manualerase = 1;
+      VIDSoftVdp1EraseFrameBuffer();
+   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3019,9 +3040,13 @@ void VIDSoftOnScreenDebugMessage(char *string, ...)
 
 void VIDSoftVdp1SwapFrameBuffer(void)
 {
-   u8 *temp = vdp1frontframebuffer;
-   vdp1frontframebuffer = vdp1backframebuffer;
-   vdp1backframebuffer = temp;
+   if (((Vdp1Regs->FBCR & 2) == 0) || Vdp1External.manualchange)
+   {
+      u8 *temp = vdp1frontframebuffer;
+      vdp1frontframebuffer = vdp1backframebuffer;
+      vdp1backframebuffer = temp;
+      Vdp1External.manualchange = 0;
+   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3031,26 +3056,30 @@ void VIDSoftVdp1EraseFrameBuffer(void)
    int i,i2;
    int w,h;
 
-   h = (Vdp1Regs->EWRR & 0x1FF) + 1;
-   if (h > vdp1height) h = vdp1height;
-   w = ((Vdp1Regs->EWRR >> 6) & 0x3F8) + 8;
-   if (w > vdp1width) w = vdp1width;
+   if (((Vdp1Regs->FBCR & 2) == 0) || Vdp1External.manualerase)
+   {
+      h = (Vdp1Regs->EWRR & 0x1FF) + 1;
+      if (h > vdp1height) h = vdp1height;
+      w = ((Vdp1Regs->EWRR >> 6) & 0x3F8) + 8;
+      if (w > vdp1width) w = vdp1width;
 
-   if (vdp1pixelsize == 2)
-   {
-      for (i2 = (Vdp1Regs->EWLR & 0x1FF); i2 < h; i2++)
+      if (vdp1pixelsize == 2)
       {
-         for (i = ((Vdp1Regs->EWLR >> 6) & 0x1F8); i < w; i++)
-            ((u16 *)vdp1backframebuffer)[(i2 * vdp1width) + i] = Vdp1Regs->EWDR;
+         for (i2 = (Vdp1Regs->EWLR & 0x1FF); i2 < h; i2++)
+         {
+            for (i = ((Vdp1Regs->EWLR >> 6) & 0x1F8); i < w; i++)
+               ((u16 *)vdp1backframebuffer)[(i2 * vdp1width) + i] = Vdp1Regs->EWDR;
+         }
       }
-   }
-   else
-   {
-      for (i2 = (Vdp1Regs->EWLR & 0x1FF); i2 < h; i2++)
+      else
       {
-         for (i = ((Vdp1Regs->EWLR >> 6) & 0x1F8); i < w; i++)
-            vdp1backframebuffer[(i2 * vdp1width) + i] = Vdp1Regs->EWDR & 0xFF;
+         for (i2 = (Vdp1Regs->EWLR & 0x1FF); i2 < h; i2++)
+         {
+            for (i = ((Vdp1Regs->EWLR >> 6) & 0x1F8); i < w; i++)
+               vdp1backframebuffer[(i2 * vdp1width) + i] = Vdp1Regs->EWDR & 0xFF;
+         }
       }
+      Vdp1External.manualerase = 0;
    }
 }
 
