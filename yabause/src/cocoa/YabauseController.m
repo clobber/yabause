@@ -310,7 +310,8 @@ static void FlipToggle(NSMenuItem *item) {
         [[view openGLContext] makeCurrentContext];
         YabauseInit(&yinit);
         [NSOpenGLContext clearCurrentContext];
-        YabauseSetDecilineMode(0);
+        //YabauseSetDecilineMode(0); //Timing setting. Remove to solve some compat issues.
+		YabauseSetDecilineMode(1);
 
         _running = YES;
         _doneExecuting = NO;
