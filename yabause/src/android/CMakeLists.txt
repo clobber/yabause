@@ -15,6 +15,9 @@ if (NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
 		AndroidManifest.xml
 		project.properties
 		jni/yui.c
+		jni/miniegl.h
+		jni/sndaudiotrack.c
+		jni/sndaudiotrack.h
 		src/org/yabause/android/Yabause.java
 		src/org/yabause/android/YabauseView.java
 		res/drawable/pad.png
@@ -64,6 +67,9 @@ add_custom_command(
 	COMMAND "${NDK_BUILD}"
 	DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/jni/libyabause.a"
 	DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/jni/yui.c"
+	DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/jni/miniegl.h"
+	DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/jni/sndaudiotrack.c"
+	DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/jni/sndaudiotrack.h"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
