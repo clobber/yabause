@@ -26,10 +26,6 @@
 #include "vdp2.h"
 #include "titan/titan.h"
 
-/* Forward declaration to avoid a warning (this is exported to vdp2debug.c) */
-void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height);
-
-
 #ifdef HAVE_LIBGL
 #define USE_OPENGL
 #endif
@@ -629,7 +625,7 @@ static u8 FASTCALL GetAlpha(vdp2draw_struct * info, u32 color)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height)
+static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height)
 {
    int i, j;
    int x, y;
@@ -1559,7 +1555,8 @@ int VIDSoftInit(void)
    if (TitanInit() == -1)
       return -1;
 
-   dispbuffer = TitanGetDispBuffer();
+   if ((dispbuffer = (u32 *)calloc(sizeof(u32), 704 * 512)) == NULL)
+      return -1;
 
    // Initialize VDP1 framebuffer 1
    if ((vdp1framebuffer[0] = (u8 *)calloc(sizeof(u8), 0x40000)) == NULL)
@@ -1611,8 +1608,11 @@ int VIDSoftInit(void)
 
 void VIDSoftDeInit(void)
 {
-   TitanDeInit();
+   if (dispbuffer)
+   {
+      free(dispbuffer);
       dispbuffer = NULL;
+   }
 
    if (vdp1framebuffer[0])
       free(vdp1framebuffer[0]);
@@ -2850,7 +2850,7 @@ void VIDSoftVdp2DrawEnd(void)
          }
       }
    }
-   TitanRender(Vdp2Regs->CCCTL & 0x200 ? TITAN_BLEND_BOTTOM : TITAN_BLEND_TOP);
+   TitanRender(dispbuffer, Vdp2Regs->CCCTL & 0x200 ? TITAN_BLEND_BOTTOM : TITAN_BLEND_TOP);
 
    VIDSoftVdp1SwapFrameBuffer();
 
@@ -2912,6 +2912,30 @@ void VIDSoftVdp2DrawScreens(void)
          Vdp2DrawNBG0();
       if (rbg0priority == i)
          Vdp2DrawRBG0();
+   }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void VIDSoftVdp2DrawScreen(int screen)
+{
+   switch(screen)
+   {
+      case 0:
+         Vdp2DrawNBG0();
+         break;
+      case 1:
+         Vdp2DrawNBG1();
+         break;
+      case 2:
+         Vdp2DrawNBG2();
+         break;
+      case 3:
+         Vdp2DrawNBG3();
+         break;
+      case 4:
+         Vdp2DrawRBG0();
+         break;
    }
 }
 
