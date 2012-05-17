@@ -35,13 +35,45 @@ QString getIniFile( const QString& s )
 #elif defined Q_OS_WIN
 	return QString( "%1/%2.ini" ).arg( QApplication::applicationDirPath() ).arg( s );
 #else
-	return QString( "%1/.%2/%2.ini" ).arg( QDir::homePath() ).arg( s );
+	/*
+	We used to store the ini file in ~/.$SOMETHING/$SOMETHING.ini, were $SOMETHING could
+	be at least yabause or yabause-qt
+	With release 0.9.12 we moved to the XDG compliant location ~/.config/yabause/qt/yabause.ini
+	and we don't want this location to depends on the program name anymore.
+	This code is trying to copy the content from the old location to the new.
+	In the future, we may drop support for the old location and rewrite the following to:
+
+	return QString( "%1/.config/yabause/qt/yabause.ini" ).arg( QDir::homePath() );
+	*/
+
+	QString xdginifile = QString( "%1/.config/yabause/qt/yabause.ini" ).arg( QDir::homePath() );
+	QString oldinifile = QString( "%1/.%2/%2.ini" ).arg( QDir::homePath() ).arg( s );
+
+	if ( QFile::exists( oldinifile ) and not QFile::exists( xdginifile ) )
+	{
+		QString xdgpath = QString( "%1/.config/yabause/qt" ).arg( QDir::homePath() );
+		if ( ! QFile::exists( xdgpath ) )
+		{
+			// for some reason, Qt doesn't provide a static mkpath method O_o
+			QDir dir;
+			dir.mkpath( xdgpath );
+		}
+		QFile::copy( oldinifile, xdginifile );
+	}
+
+	return xdginifile;
 #endif
 }
 
 Settings::Settings( QObject* o )
 	: QSettings( QDir::convertSeparators( getIniFile( mProgramName ) ), QSettings::IniFormat, o )
-{ beginGroup( mProgramVersion ); }
+{
+	/*
+	This used to be "beginGroup( mProgramVersion );" so users would lose their
+	config with each new release...
+	*/
+	beginGroup( "0.9.11" );
+}
 
 Settings::~Settings()
 { endGroup(); }
