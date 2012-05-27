@@ -634,6 +634,7 @@ static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height
    screeninfo_struct sinfo;
    int scrollx, scrolly;
    int *mosaic_y, *mosaic_x;
+   clipping_struct colorcalcwindow;
 
    info->coordincx *= (float)resxratio;
    info->coordincy *= (float)resyratio;
@@ -648,7 +649,8 @@ static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height
    ReadWindowData(info->wctl, clip);
    linewnd0addr = linewnd1addr = 0;
    ReadLineWindowData(&info->islinewindow, info->wctl, &linewnd0addr, &linewnd1addr);
-
+   /* color calculation window: in => no color calc, out => color calc */
+   ReadWindowData(Vdp2Regs->WCTLD >> 8, &colorcalcwindow);
    {
 	   static int tables_initialized = 0;
 	   static int mosaic_table[16][1024];
@@ -720,23 +722,27 @@ static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height
       for (i = 0; i < width; i++)
       {
          u32 color;
+         /* I'm really not sure about this... but I think the way we handle
+         high resolution gets in the way with window process. I may be wrong...
+         This was added for Cotton Boomerang */
+         int resxi = i * resxratio;
 
          // See if screen position is clipped, if it isn't, continue
 		 // AND window logic
-		 if(!TestWindow(info->wctl, 0x2, 0x1, &clip[0], i, j) && !TestWindow(info->wctl, 0x8, 0x4, &clip[1], i, j) && (info->wctl & 0x80) == 0x80)
+		 if(!TestWindow(info->wctl, 0x2, 0x1, &clip[0], resxi, j) && !TestWindow(info->wctl, 0x8, 0x4, &clip[1], resxi, j) && (info->wctl & 0x80) == 0x80)
 		 {
 			 continue;
 		 }
 		 //OR window logic
 		 else if ((info->wctl & 0x80) == 0)
 		 {
-			 if (!TestWindow(info->wctl, 0x2, 0x1, &clip[0], i, j))
+			 if (!TestWindow(info->wctl, 0x2, 0x1, &clip[0], resxi, j))
 			 {
 				 continue;
 			 }
 
 			 // Window 1
-			 if (!TestWindow(info->wctl, 0x8, 0x4, &clip[1], i,j))
+			 if (!TestWindow(info->wctl, 0x8, 0x4, &clip[1], resxi, j))
 			 {
 				 continue;
 			 }
@@ -771,7 +777,16 @@ static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height
          // We almost need to know well ahead of time what the top
          // and second pixel is in order to work this.
 
-         TitanPutPixel(info->priority, i, j, COLSAT2YAB32(GetAlpha(info, color), info->PostPixelFetchCalc(info, color)), info->linescreen);
+         {
+            u8 alpha;
+            /* if we're in the valid area of the color calculation window, don't do color calculation */
+            if (!TestWindow(Vdp2Regs->WCTLD >> 8, 2, 1, &colorcalcwindow, i, j))
+               alpha = 0x3F;
+            else
+               alpha = GetAlpha(info, color);
+
+            TitanPutPixel(info->priority, i, j, COLSAT2YAB32(alpha, info->PostPixelFetchCalc(info, color)), info->linescreen);
+         }
       }
    }    
 }
@@ -1600,7 +1615,6 @@ int VIDSoftInit(void)
    msglength = 0;
 #endif
 
-   VideoInitGlut();
    return 0;
 }
 
@@ -2701,6 +2715,7 @@ void VIDSoftVdp2DrawEnd(void)
    clipping_struct clip[2];
    u32 linewnd0addr, linewnd1addr;
    int wctl;
+   clipping_struct colorcalcwindow;
 
    // Figure out whether to draw vdp1 framebuffer or vdp2 framebuffer pixels
    // based on priority
@@ -2737,6 +2752,9 @@ void VIDSoftVdp2DrawEnd(void)
       ReadWindowData(wctl, clip);
       linewnd0addr = linewnd1addr = 0;
       ReadLineWindowData(&islinewindow, wctl, &linewnd0addr, &linewnd1addr);
+
+      /* color calculation window: in => no color calc, out => color calc */
+      ReadWindowData(Vdp2Regs->WCTLD >> 8, &colorcalcwindow);
 
       for (i2 = 0; i2 < vdp2height; i2++)
       {
@@ -2799,7 +2817,7 @@ void VIDSoftVdp2DrawEnd(void)
 
                   dot = Vdp2ColorRamGetColor(vdp1coloroffset + pixel);
 
-                  if (Vdp2Regs->CCCTL & 0x40)
+                  if (TestWindow(Vdp2Regs->WCTLD >> 8, 2, 1, &colorcalcwindow, i, i2) && (Vdp2Regs->CCCTL & 0x40))
                   {
                      /* Sprite color calculation */
                      switch(SPCCCS) {
@@ -2858,33 +2876,10 @@ void VIDSoftVdp2DrawEnd(void)
    glRasterPos2i(0, 0);
    glPixelZoom((float)outputwidth / (float)vdp2width, 0 - ((float)outputheight / (float)vdp2height));
    glDrawPixels(vdp2width, vdp2height, GL_RGBA, GL_UNSIGNED_BYTE, dispbuffer);
-
-#if HAVE_LIBGLUT
-   if (msglength > 0) {
-	   int LeftX=9;
-	   int Width=500;
-	   int TxtY=11;
-	   int Height=13;
-
-	 glBegin(GL_POLYGON);
-        glColor3f(0, 0, 0);
-        glVertex2i(LeftX, TxtY);
-        glVertex2i(LeftX + Width, TxtY);
-        glVertex2i(LeftX + Width, TxtY + Height);
-        glVertex2i(LeftX, TxtY + Height);
-    glEnd();
-
-      glColor3f(1.0f, 1.0f, 1.0f);
-      glRasterPos2i(10, 22);
-      for (i = 0; i < msglength; i++) {
-         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, message[i]);
-      }
-      glColor3f(1, 1, 1);
-      msglength = 0;
-   }
 #endif
 
-#endif
+   OSDDisplayMessages();
+
    YuiSwapBuffers();
 
    if ((Vdp1Regs->FBCR & 2) && (Vdp1Regs->TVMR & 8))
@@ -2919,6 +2914,12 @@ void VIDSoftVdp2DrawScreens(void)
 
 void VIDSoftVdp2DrawScreen(int screen)
 {
+   VIDSoftVdp2SetResolution(Vdp2Regs->TVMD);
+   VIDSoftVdp2SetPriorityNBG0(Vdp2Regs->PRINA & 0x7);
+   VIDSoftVdp2SetPriorityNBG1((Vdp2Regs->PRINA >> 8) & 0x7);
+   VIDSoftVdp2SetPriorityNBG2(Vdp2Regs->PRINB & 0x7);
+   VIDSoftVdp2SetPriorityNBG3((Vdp2Regs->PRINB >> 8) & 0x7);
+   VIDSoftVdp2SetPriorityRBG0(Vdp2Regs->PRIR & 0x7);
    switch(screen)
    {
       case 0:
