@@ -445,6 +445,18 @@ static INLINE int TestWindow(int wctl, int enablemask, int inoutmask, clipping_s
 
 //////////////////////////////////////////////////////////////////////////////
 
+static INLINE int TestBothWindow(int wctl, clipping_struct *clip, int x, int y)
+{
+    if ((wctl & 0x80) == 0x80)
+        /* AND logic, returns 0 only if both the windows are active */
+        return TestWindow(wctl, 0x2, 0x1, &clip[0], x, y) || TestWindow(wctl, 0x8, 0x4, &clip[1], x, y);
+    else
+        /* OR logic, returns 0 if one of the windows is active */
+        return TestWindow(wctl, 0x2, 0x1, &clip[0], x, y) && TestWindow(wctl, 0x8, 0x4, &clip[1], x, y);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 static INLINE void GeneratePlaneAddrTable(vdp2draw_struct *info, u32 *planetbl)
 {
    int i;
@@ -634,7 +646,7 @@ static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height
    screeninfo_struct sinfo;
    int scrollx, scrolly;
    int *mosaic_y, *mosaic_x;
-   clipping_struct colorcalcwindow;
+   clipping_struct colorcalcwindow[2];
 
    info->coordincx *= (float)resxratio;
    info->coordincy *= (float)resyratio;
@@ -650,7 +662,7 @@ static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height
    linewnd0addr = linewnd1addr = 0;
    ReadLineWindowData(&info->islinewindow, info->wctl, &linewnd0addr, &linewnd1addr);
    /* color calculation window: in => no color calc, out => color calc */
-   ReadWindowData(Vdp2Regs->WCTLD >> 8, &colorcalcwindow);
+   ReadWindowData(Vdp2Regs->WCTLD >> 8, colorcalcwindow);
    {
 	   static int tables_initialized = 0;
 	   static int mosaic_table[16][1024];
@@ -728,25 +740,10 @@ static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height
          int resxi = i * resxratio;
 
          // See if screen position is clipped, if it isn't, continue
-		 // AND window logic
-		 if(!TestWindow(info->wctl, 0x2, 0x1, &clip[0], resxi, j) && !TestWindow(info->wctl, 0x8, 0x4, &clip[1], resxi, j) && (info->wctl & 0x80) == 0x80)
-		 {
-			 continue;
-		 }
-		 //OR window logic
-		 else if ((info->wctl & 0x80) == 0)
-		 {
-			 if (!TestWindow(info->wctl, 0x2, 0x1, &clip[0], resxi, j))
-			 {
-				 continue;
-			 }
-
-			 // Window 1
-			 if (!TestWindow(info->wctl, 0x8, 0x4, &clip[1], resxi, j))
-			 {
-				 continue;
-			 }
-		 }
+         if (!TestBothWindow(info->wctl, clip, resxi, j))
+         {
+            continue;
+         }
 
          //x = info->x+((int)(info->coordincx*(float)((info->mosaicxmask > 1) ? (i / info->mosaicxmask * info->mosaicxmask) : i)));
 		 x = info->x + mosaic_x[i]*info->coordincx;
@@ -780,7 +777,7 @@ static void FASTCALL Vdp2DrawScroll(vdp2draw_struct *info, int width, int height
          {
             u8 alpha;
             /* if we're in the valid area of the color calculation window, don't do color calculation */
-            if (!TestWindow(Vdp2Regs->WCTLD >> 8, 2, 1, &colorcalcwindow, i, j))
+            if (!TestBothWindow(Vdp2Regs->WCTLD >> 8, colorcalcwindow, i, j))
                alpha = 0x3F;
             else
                alpha = GetAlpha(info, color);
@@ -850,7 +847,6 @@ static void FASTCALL Vdp2DrawRotationFP(vdp2draw_struct *info, vdp2rotationparam
 
                x = GenerateRotatedXPosFP(p, i, xmul, ymul, C) & sinfo.xmask;
                y = GenerateRotatedYPosFP(p, i, xmul, ymul, F) & sinfo.ymask;
-               xmul += p->deltaXst;
 
                // Convert coordinates into graphics
                if (!info->isbitmap)
@@ -867,6 +863,7 @@ static void FASTCALL Vdp2DrawRotationFP(vdp2draw_struct *info, vdp2rotationparam
 
                TitanPutPixel(info->priority, i, j, COLSAT2YAB32(GetAlpha(info, color), info->PostPixelFetchCalc(info, color)), info->linescreen);
             }
+            xmul += p->deltaXst;
             ymul += p->deltaYst;
          }
 
@@ -946,7 +943,6 @@ static void FASTCALL Vdp2DrawRotationFP(vdp2draw_struct *info, vdp2rotationparam
 
             x = GenerateRotatedXPosFP(p, i, xmul, ymul, C) & sinfo.xmask;
             y = GenerateRotatedYPosFP(p, i, xmul, ymul, F) & sinfo.ymask;
-            xmul += p->deltaXst;
 
             // Convert coordinates into graphics
             if (!info->isbitmap)
@@ -963,6 +959,7 @@ static void FASTCALL Vdp2DrawRotationFP(vdp2draw_struct *info, vdp2rotationparam
 
             TitanPutPixel(info->priority, i, j, COLSAT2YAB32(GetAlpha(info, color), info->PostPixelFetchCalc(info, color)), info->linescreen);
          }
+         xmul += p->deltaXst;
          ymul += p->deltaYst;
          coefx = 0;
          rcoefx = 0;
@@ -1894,6 +1891,13 @@ static int getpixel(int linenumber, int currentlineindex) {
 			currentPixel = Vdp1ReadPattern64k( characterAddress + (linenumber*characterWidth*2), currentlineindex );
 			if(isTextured && endcodesEnabled && currentPixel == endcode)
 				return 1;
+
+			/* the transparent pixel in 16bpp is supposed to be 0x0000
+			but some games use pixels with invalid values and expect
+			them to be transparent (see vdp1 doc p. 92) */
+			if (!(currentPixel & 0x8000) && !SPD)
+				currentPixel = 0;
+
 			currentPixelIsVisible = 0xffff;
 			break;
 	}
@@ -2715,7 +2719,7 @@ void VIDSoftVdp2DrawEnd(void)
    clipping_struct clip[2];
    u32 linewnd0addr, linewnd1addr;
    int wctl;
-   clipping_struct colorcalcwindow;
+   clipping_struct colorcalcwindow[2];
 
    // Figure out whether to draw vdp1 framebuffer or vdp2 framebuffer pixels
    // based on priority
@@ -2724,6 +2728,9 @@ void VIDSoftVdp2DrawEnd(void)
       int SPCCCS = (Vdp2Regs->SPCTL >> 12) & 0x3;
       int SPCCN = (Vdp2Regs->SPCTL >> 8) & 0x7;
       u8 colorcalctable[8];
+      vdp2rotationparameterfp_struct p;
+      int x, y;
+
       prioritytable[0] = Vdp2Regs->PRISA & 0x7;
       prioritytable[1] = (Vdp2Regs->PRISA >> 8) & 0x7;
       prioritytable[2] = Vdp2Regs->PRISB & 0x7;
@@ -2754,7 +2761,10 @@ void VIDSoftVdp2DrawEnd(void)
       ReadLineWindowData(&islinewindow, wctl, &linewnd0addr, &linewnd1addr);
 
       /* color calculation window: in => no color calc, out => color calc */
-      ReadWindowData(Vdp2Regs->WCTLD >> 8, &colorcalcwindow);
+      ReadWindowData(Vdp2Regs->WCTLD >> 8, colorcalcwindow);
+
+      if (Vdp1Regs->TVMR & 2)
+         Vdp2ReadRotationTableFP(0, &p);
 
       for (i2 = 0; i2 < vdp2height; i2++)
       {
@@ -2765,22 +2775,25 @@ void VIDSoftVdp2DrawEnd(void)
          for (i = 0; i < vdp2width; i++)
          {
             // See if screen position is clipped, if it isn't, continue
-            // Window 0
-            if (!TestWindow(wctl, 0x2, 0x1, &clip[0], i, i2))
+            if (!TestBothWindow(wctl, clip, i, i2))
             {
                continue;
             }
 
-            // Window 1
-            if (!TestWindow(wctl, 0x8, 0x4, &clip[1], i, i2))
+            if (Vdp1Regs->TVMR & 2) {
+               x = (touint(p.Xst + i * p.deltaX + i2 * p.deltaXst)) & (vdp1width - 1);
+               y = (touint(p.Yst + i * p.deltaY + i2 * p.deltaYst)) & (vdp1height - 1);
+            }
+            else
             {
-               continue;
+               x = i;
+               y = i2;
             }
 
             if (vdp1pixelsize == 2)
             {
                // 16-bit pixel size
-               pixel = ((u16 *)vdp1frontframebuffer)[(i2 * vdp1width) + i];
+               pixel = ((u16 *)vdp1frontframebuffer)[(y * vdp1width) + x];
 
                if (pixel == 0)
                   ;
@@ -2817,7 +2830,7 @@ void VIDSoftVdp2DrawEnd(void)
 
                   dot = Vdp2ColorRamGetColor(vdp1coloroffset + pixel);
 
-                  if (TestWindow(Vdp2Regs->WCTLD >> 8, 2, 1, &colorcalcwindow, i, i2) && (Vdp2Regs->CCCTL & 0x40))
+                  if (TestBothWindow(Vdp2Regs->WCTLD >> 8, colorcalcwindow, i, i2) && (Vdp2Regs->CCCTL & 0x40))
                   {
                      /* Sprite color calculation */
                      switch(SPCCCS) {
@@ -2850,19 +2863,49 @@ void VIDSoftVdp2DrawEnd(void)
             else
             {
                // 8-bit pixel size
-               pixel = vdp1frontframebuffer[(i2 * vdp1width) + i];
+               pixel = vdp1frontframebuffer[(y * vdp1width) + x];
 
                if (pixel != 0)
                {
                   // Color bank(fix me)
-                  int priority;
+                  int priority = 0;
                   int shadow = 0;
-                  int colorcalc;
+                  int colorcalc = 0;
                   u8 alpha = 0xFF;
-                  priority = 0;  // Avoid compiler warning
-                  Vdp1ProcessSpritePixel(vdp1spritetype, &pixel, &shadow, &priority, &colorcalc);
-                  TitanPutPixel(prioritytable[priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(alpha, Vdp2ColorRamGetColor(vdp1coloroffset + pixel))), 0);
+                  u32 dot;
 
+                  Vdp1ProcessSpritePixel(vdp1spritetype, &pixel, &shadow, &priority, &colorcalc);
+
+                  dot = Vdp2ColorRamGetColor(vdp1coloroffset + pixel);
+
+                  if (TestBothWindow(Vdp2Regs->WCTLD >> 8, colorcalcwindow, i, i2) && (Vdp2Regs->CCCTL & 0x40))
+                  {
+                     /* Sprite color calculation */
+                     switch(SPCCCS) {
+                        case 0:
+                           if (prioritytable[priority] <= SPCCN) {
+                              alpha = colorcalctable[colorcalc];
+                           }
+                           break;
+                        case 1:
+                           if (prioritytable[priority] == SPCCN) {
+                              alpha = colorcalctable[colorcalc];
+                           }
+                           break;
+                        case 2:
+                           if (prioritytable[priority] >= SPCCN) {
+                              alpha = colorcalctable[colorcalc];
+                           }
+                           break;
+                        case 3:
+                           if (dot & 0x80000000) {
+                              alpha = colorcalctable[colorcalc];
+                           }
+                           break;
+                     }
+                  }
+
+                  TitanPutPixel(prioritytable[priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(alpha, dot)), 0);
                }
             }
          }
