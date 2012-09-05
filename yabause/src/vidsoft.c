@@ -623,7 +623,7 @@ static u8 FASTCALL GetAlpha(vdp2draw_struct * info, u32 color)
    if (((info->specialcolormode == 1) || (info->specialcolormode == 2)) && ((info->specialcolorfunction & 1) == 0)) {
       /* special color calculation mode 1 and 2 enables color calculation only when special color function = 1 */
       return 0x3F;
-   } else if ((info->specialcolormode == 2)) {
+   } else if (info->specialcolormode == 2) {
       /* special color calculation 2 enables color calculation according to lower bits of the color */
       if ((info->specialcode & (1 << ((color & 0xF) >> 1))) == 0) {
          return 0x3F;
@@ -1931,8 +1931,9 @@ static void putpixel8(int x, int y) {
 
     currentPixel &= 0xFF;
 
-    if(mesh && (x^y)&1)
+    if(mesh && (((x / 2) ^ (y / vdp1interlace)) & 1)) {
         return;
+    }
 
     if(currentShape == 4 || currentShape == 5 || currentShape == 6)
         isTextured = 0;
@@ -2141,15 +2142,17 @@ typedef struct {
 
 static int DrawLineCallback(int x, int y, int i, void *data)
 {
+	int currentStep;
 	DrawLineData *linedata = data;
 
 	leftColumnColor.r += linedata->xredstep;
 	leftColumnColor.g += linedata->xgreenstep;
 	leftColumnColor.b += linedata->xbluestep;
 
-	if (getpixel(linedata->linenumber, (int)i * linedata->texturestep)) {
-		if (currentPixel != linedata->previousStep) {
-			linedata->previousStep = (int)i * linedata->texturestep;
+	currentStep = (int)i * linedata->texturestep;
+	if (getpixel(linedata->linenumber, currentStep)) {
+		if (currentStep != linedata->previousStep) {
+			linedata->previousStep = currentStep;
 			linedata->endcodesdetected ++;
 		}
 	} else if (vdp1pixelsize == 2) {
@@ -2723,7 +2726,7 @@ void VIDSoftVdp2DrawEnd(void)
 
    // Figure out whether to draw vdp1 framebuffer or vdp2 framebuffer pixels
    // based on priority
-   if (Vdp1External.disptoggle)
+   if (Vdp1External.disptoggle && (Vdp2Regs->TVMD & 0x8000))
    {
       int SPCCCS = (Vdp2Regs->SPCTL >> 12) & 0x3;
       int SPCCN = (Vdp2Regs->SPCTL >> 8) & 0x7;
@@ -2810,20 +2813,23 @@ void VIDSoftVdp2DrawEnd(void)
                else
                {
                   // Color bank
-                  int priority = 0;
-                  int shadow = 0;
-                  int colorcalc = 0;
+                  spritepixelinfo_struct spi;
                   u8 alpha = 0xFF;
                   u32 dot;
 
-                  Vdp1ProcessSpritePixel(vdp1spritetype, &pixel, &shadow, &priority, &colorcalc);
-                  if (shadow)
+                  Vdp1GetSpritePixelInfo(vdp1spritetype, &pixel, &spi);
+                  if (spi.normalshadow)
+                  {
+                     TitanPutShadow(prioritytable[spi.priority], i, i2);
+                     continue;
+                  }
+                  if (spi.msbshadow)
                   {
                      if (Vdp2Regs->SPCTL & 0x10) {
                         /* sprite window, not handled yet... we avoid displaying garbage */
                      } else {
                         /* msb shadow */
-                        TitanPutPixel(prioritytable[priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(0x20, 0)), 0);
+                        TitanPutShadow(prioritytable[spi.priority], i, i2);
                      }
                      continue;
                   }
@@ -2835,29 +2841,29 @@ void VIDSoftVdp2DrawEnd(void)
                      /* Sprite color calculation */
                      switch(SPCCCS) {
                         case 0:
-                           if (prioritytable[priority] <= SPCCN) {
-                              alpha = colorcalctable[colorcalc];
+                           if (prioritytable[spi.priority] <= SPCCN) {
+                              alpha = colorcalctable[spi.colorcalc];
                            }
                            break;
                         case 1:
-                           if (prioritytable[priority] == SPCCN) {
-                              alpha = colorcalctable[colorcalc];
+                           if (prioritytable[spi.priority] == SPCCN) {
+                              alpha = colorcalctable[spi.colorcalc];
                            }
                            break;
                         case 2:
-                           if (prioritytable[priority] >= SPCCN) {
-                              alpha = colorcalctable[colorcalc];
+                           if (prioritytable[spi.priority] >= SPCCN) {
+                              alpha = colorcalctable[spi.colorcalc];
                            }
                            break;
                         case 3:
                            if (dot & 0x80000000) {
-                              alpha = colorcalctable[colorcalc];
+                              alpha = colorcalctable[spi.colorcalc];
                            }
                            break;
                      }
                   }
 
-                  TitanPutPixel(prioritytable[priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(alpha, dot)), 0);
+                  TitanPutPixel(prioritytable[spi.priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(alpha, dot)), 0);
                }
             }
             else
@@ -2868,13 +2874,11 @@ void VIDSoftVdp2DrawEnd(void)
                if (pixel != 0)
                {
                   // Color bank(fix me)
-                  int priority = 0;
-                  int shadow = 0;
-                  int colorcalc = 0;
+                  spritepixelinfo_struct spi;
                   u8 alpha = 0xFF;
                   u32 dot;
 
-                  Vdp1ProcessSpritePixel(vdp1spritetype, &pixel, &shadow, &priority, &colorcalc);
+                  Vdp1GetSpritePixelInfo(vdp1spritetype, &pixel, &spi);
 
                   dot = Vdp2ColorRamGetColor(vdp1coloroffset + pixel);
 
@@ -2883,29 +2887,29 @@ void VIDSoftVdp2DrawEnd(void)
                      /* Sprite color calculation */
                      switch(SPCCCS) {
                         case 0:
-                           if (prioritytable[priority] <= SPCCN) {
-                              alpha = colorcalctable[colorcalc];
+                           if (prioritytable[spi.priority] <= SPCCN) {
+                              alpha = colorcalctable[spi.colorcalc];
                            }
                            break;
                         case 1:
-                           if (prioritytable[priority] == SPCCN) {
-                              alpha = colorcalctable[colorcalc];
+                           if (prioritytable[spi.priority] == SPCCN) {
+                              alpha = colorcalctable[spi.colorcalc];
                            }
                            break;
                         case 2:
-                           if (prioritytable[priority] >= SPCCN) {
-                              alpha = colorcalctable[colorcalc];
+                           if (prioritytable[spi.priority] >= SPCCN) {
+                              alpha = colorcalctable[spi.colorcalc];
                            }
                            break;
                         case 3:
                            if (dot & 0x80000000) {
-                              alpha = colorcalctable[colorcalc];
+                              alpha = colorcalctable[spi.colorcalc];
                            }
                            break;
                      }
                   }
 
-                  TitanPutPixel(prioritytable[priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(alpha, dot)), 0);
+                  TitanPutPixel(prioritytable[spi.priority], i, i2, info.PostPixelFetchCalc(&info, COLSAT2YAB32(alpha, dot)), 0);
                }
             }
          }
