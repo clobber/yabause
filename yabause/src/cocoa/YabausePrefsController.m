@@ -54,10 +54,18 @@
 
     if([_prefs objectForKey:@"Emulate BIOS"]) {
         [emulateBios setState:[_prefs boolForKey:@"Emulate BIOS"] ?
-            NSOnState : NSOffState];
+                   NSOnState : NSOffState];
     }
     else {
         [_prefs setBool:YES forKey:@"Emulate BIOS"];
+    }
+
+    if([_prefs objectForKey:@"Keep Aspect Ratio"]) {
+        [keepAspectRatio setState:[_prefs boolForKey:@"Keep Aspect Ratio"] ?
+                   NSOnState : NSOffState];
+    }
+    else {
+        [_prefs setBool:YES forKey:@"Keep Aspect Ratio"];
     }
 
     if([_prefs objectForKey:@"MPEG ROM Path"]) {
@@ -309,6 +317,13 @@
 {
     /* Update the preferences file. */
     [_prefs setBool:([sender state] == NSOnState) forKey:@"Emulate BIOS"];
+    [_prefs synchronize];
+}
+
+- (IBAction)aspectRatioToggle:(id)sender
+{
+    /* Update the preferences file. */
+    [_prefs setBool:([sender state] == NSOnState) forKey:@"Keep Aspect Ratio"];
     [_prefs synchronize];
 }
 

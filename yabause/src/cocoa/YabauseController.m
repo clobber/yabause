@@ -86,6 +86,7 @@ static void FlipToggle(NSMenuItem *item) {
         [frameskip setState:NSOffState];
         DisableAutoFrameSkip();
     }
+
 }
 
 - (void)dealloc
@@ -315,6 +316,16 @@ static void FlipToggle(NSMenuItem *item) {
         _running = YES;
         _doneExecuting = NO;
 
+        /* Should we keep the aspect ratio */
+        NSUserDefaults *p = [NSUserDefaults standardUserDefaults];
+        if([p boolForKey:@"Keep Aspect Ratio"] == YES) {
+            [[view window] setAspectRatio:NSMakeSize(320.0, 224.0)];
+        }
+        else {
+            // Unlock the aspect ratio
+            [[view window] setResizeIncrements:NSMakeSize(1.0, 1.0)];
+        }
+        
         [view showWindow];
 
         /* The emulation itself takes place in a separate thread from the main

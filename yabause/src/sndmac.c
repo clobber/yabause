@@ -21,6 +21,8 @@
 /* This file is adapted from CrabEmu's sound.c for Mac OS X as well as the
    sndsdl.c file in Yabause. */
 
+//loicloic
+#include <CoreAudio/CoreAudio.h>
 #include <AudioUnit/AudioUnit.h>
 #include <pthread.h>
 #include <stdlib.h>
